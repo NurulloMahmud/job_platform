@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Codefy Jobs{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="/" class="text-2xl font-bold text-indigo-600 tracking-tight">Codefy<span class="text-gray-800">Jobs</span></a>
+      <nav class="flex gap-4 items-center text-sm font-medium text-gray-600">
+        <a href="/" class="hover:text-indigo-600 transition">Jobs</a>
+        <!-- auth-aware links injected by auth.js -->
+        <div id="nav-auth" class="flex gap-3 items-center"></div>
+        <button onclick="postJobFlow()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Post a Job</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Page content -->
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t mt-16 py-6 text-center text-sm text-gray-400">
+    &copy; 2026 CodefyJobs. All rights reserved.
+  </footer>
+
+  <script src="/static/js/auth.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

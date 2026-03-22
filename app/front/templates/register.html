@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Register — CodefyJobs{% endblock %}
+
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-extrabold text-gray-900">Create an account</h1>
+      <p class="text-gray-500 mt-2 text-sm">Join CodefyJobs and start your journey</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+
+      <div id="error-msg" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600"></div>
+
+      <form id="register-form" class="space-y-5" onsubmit="handleRegister(event)">
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+          <input
+            id="name" type="text" required autocomplete="name"
+            placeholder="John Doe"
+            class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+          <input
+            id="phone" type="tel" required autocomplete="tel"
+            placeholder="+1 555 000 0000"
+            class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input
+            id="email" type="email" required autocomplete="email"
+            placeholder="you@example.com"
+            class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <input
+            id="password" type="password" required autocomplete="new-password"
+            placeholder="At least 8 characters"
+            class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          />
+        </div>
+
+        <button
+          type="submit"
+          id="submit-btn"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl transition text-sm"
+        >
+          Create Account
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-gray-500 mt-6">
+        Already have an account?
+        <a href="/login" class="text-indigo-600 hover:underline font-medium">Sign in</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function handleRegister(e) {
+  e.preventDefault();
+  const btn = document.getElementById("submit-btn");
+  const errEl = document.getElementById("error-msg");
+  errEl.classList.add("hidden");
+  btn.disabled = true;
+  btn.textContent = "Creating account…";
+
+  const name     = document.getElementById("name").value.trim();
+  const phone    = document.getElementById("phone").value.trim();
+  const email    = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  try {
+    // 1. Register
+    const res = await fetch("/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, phone, email, password }),
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.detail || "Registration failed");
+    }
+
+    // 2. Auto-login
+    const loginRes = await fetch("/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!loginRes.ok) throw new Error("Registered but login failed — please sign in manually.");
+    const { access_token } = await loginRes.json();
+    saveToken(access_token);
+
+    // 3. Fetch + cache user
+    const meRes = await fetch("/auth/me", { headers: authHeaders() });
+    if (meRes.ok) saveUser(await meRes.json());
+
+    // 4. Redirect
+    const next = new URLSearchParams(window.location.search).get("next") || "/";
+    window.location.href = next;
+
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.classList.remove("hidden");
+    btn.disabled = false;
+    btn.textContent = "Create Account";
+  }
+}
+</script>
+{% endblock %}
