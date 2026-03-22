@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     DATABASE_URL: str = f"sqlite:///{BASE_DIR}/job_platform.db"
 
-    SECRET_KEY: str = "change-this-secret-key-in-production"
+    SECRET_KEY: str = "89305262714c9cd5b94c58aae1b809217eec324df53fd4202509a1e37e3e9912"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
